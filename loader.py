@@ -73,8 +73,8 @@ def plot_data(data, labels, title):
     handlelist = [plt.plot([], marker="o", ls="", color=color)[0] for color in colors]
 
     plt.legend(handlelist, np.unique(labels), loc='right', title="Classes")
-    plt.xlabel("First dimention of the data set")
-    plt.ylabel("Second dimention of the data set")
+    plt.xlabel("First dimension of the data set")
+    plt.ylabel("Second dimension of the data set")
     plt.title("{} set".format(title))
 
     plt.show()
@@ -107,6 +107,31 @@ def pca(data, dimensions):
     components = eigenvectors[0:dimensions]
     return components, adjusted_data, means
 
+
+def plot_dataset_2d(dataset_name):
+    original_data, labels, labels_strings = load_arff_data(dataset_name)
+    components, adjusted_data, means = pca(original_data, 2)
+
+    transformed_data = np.dot(adjusted_data, components.transpose())
+
+    plot_data(transformed_data, labels, dataset_name)
+
+    # reconstructed_data = np.add(adjusted_data, means)
+    #
+    # fig = plt.figure(figsize=(7, 7))
+    # ax = fig.add_subplot(111)
+    #
+    # ax.plot(transformed_data[:, 0], transformed_data[:, 1], 'o', markersize=8, color='green',
+    #         alpha=0.2)
+    # ax.plot([transformed_data[:, 0].mean()], [transformed_data[:, 1].mean()], 'o',
+    #         markersize=10, color='red', alpha=0.5)
+    #
+    # plt.xlabel("First dimension of the data set")
+    # plt.ylabel("Second dimension of the data set")
+    #
+    # plt.title('Eigenvectors '+dataset_name)
+    #
+    # plt.show()
 
 def plot_dataset_3d(dataset_name):
     original_data, labels, labels_strings = load_arff_data(dataset_name)
@@ -151,4 +176,4 @@ def plot_dataset_3d(dataset_name):
 good_datasets = ['bal', 'vehicle', 'segment', 'waveform']
 
 for dataset in good_datasets:
-    plot_dataset_3d(dataset)
+    plot_dataset_2d(dataset)
