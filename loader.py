@@ -57,16 +57,11 @@ def load_arff_data(dataset_name):
     return pca_data, labels_true, labels_strings
 
 
-original_data = load_arff_data("vehicle")[0]
-labels = load_arff_data("vehicle")[1]
-labels_strings = load_arff_data("vehicle")[2]
-
-
 def take(n, iterable):
     return list(islice(iterable, n))
 
 
-def plot_data(data, title):
+def plot_data(data, labels, title):
     n_items = take(len(np.unique(labels)), matplotlib.colors.cnames.iteritems())
 
     colors = [name for (name, color) in n_items]
@@ -85,7 +80,7 @@ def plot_data(data, title):
     plt.show()
 
 
-def pca(data, dimentions):
+def pca(data, dimensions):
     means = np.mean(data, axis=0)
     means = means.reshape(1, means.shape[0])
 
@@ -109,44 +104,51 @@ def pca(data, dimentions):
     for i in eig_pairs:
         print(i[0])
 
-    components = eigenvectors[0:dimentions]
+    components = eigenvectors[0:dimensions]
     return components, adjusted_data, means
 
 
-components, adjusted_data, means = pca(original_data, 3)
+def plot_dataset_3d(dataset_name):
+    original_data, labels, labels_strings = load_arff_data(dataset_name)
+    components, adjusted_data, means = pca(original_data, 3)
 
-transformed_data = np.dot(adjusted_data, components.transpose())
+    transformed_data = np.dot(adjusted_data, components.transpose())
 
-reconstructed_data = np.add(adjusted_data, means)
-
-
-class Arrow3D(FancyArrowPatch):
-    def __init__(self, xs, ys, zs, *args, **kwargs):
-        FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
-        self._verts3d = xs, ys, zs
-
-    def draw(self, renderer):
-        xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
-        FancyArrowPatch.draw(self, renderer)
+    reconstructed_data = np.add(adjusted_data, means)
 
 
-fig = plt.figure(figsize=(7, 7))
-ax = fig.add_subplot(111, projection='3d')
+    class Arrow3D(FancyArrowPatch):
+        def __init__(self, xs, ys, zs, *args, **kwargs):
+            FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
+            self._verts3d = xs, ys, zs
 
-ax.plot(transformed_data[:, 0], transformed_data[:, 1], transformed_data[:, 2], 'o', markersize=8, color='green',
-        alpha=0.2)
-ax.plot([transformed_data[:, 0].mean()], [transformed_data[:, 1].mean()], [transformed_data[:, 2].mean()], 'o',
-        markersize=10, color='red', alpha=0.5)
-for v in components:
-    a = Arrow3D([transformed_data[:, 0].mean(), v[0]], [transformed_data[:, 0].mean(), v[1]],
-                [transformed_data[:, 0].mean(), v[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
-    ax.add_artist(a)
-ax.set_xlabel('x_values')
-ax.set_ylabel('y_values')
-ax.set_zlabel('z_values')
+        def draw(self, renderer):
+            xs3d, ys3d, zs3d = self._verts3d
+            xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+            self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+            FancyArrowPatch.draw(self, renderer)
 
-plt.title('Eigenvectors')
+    fig = plt.figure(figsize=(7, 7))
+    ax = fig.add_subplot(111, projection='3d')
 
-plt.show()
+    ax.plot(transformed_data[:, 0], transformed_data[:, 1], transformed_data[:, 2], 'o', markersize=8, color='green',
+            alpha=0.2)
+    ax.plot([transformed_data[:, 0].mean()], [transformed_data[:, 1].mean()], [transformed_data[:, 2].mean()], 'o',
+            markersize=10, color='red', alpha=0.5)
+    for v in components:
+        a = Arrow3D([transformed_data[:, 0].mean(), v[0]], [transformed_data[:, 0].mean(), v[1]],
+                    [transformed_data[:, 0].mean(), v[2]], mutation_scale=20, lw=3, arrowstyle="-|>", color="r")
+        ax.add_artist(a)
+    ax.set_xlabel('x_values')
+    ax.set_ylabel('y_values')
+    ax.set_zlabel('z_values')
+
+    plt.title('Eigenvectors '+dataset_name)
+
+    plt.show()
+
+
+good_datasets = ['bal', 'vehicle', 'segment', 'waveform']
+
+for dataset in good_datasets:
+    plot_dataset_3d(dataset)
