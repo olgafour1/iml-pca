@@ -14,10 +14,11 @@ from sklearn.decomposition import PCA
 from matplotlib import pylab
 import os
 
-def load_arff_data(dataset_name):
-    balanceScale = rootDir + "/" + dataset_name + ".arff"
 
-    data, meta = arff.loadarff(balanceScale)
+def load_arff_data(dataset_name):
+    arff_path = rootDir + "/" + dataset_name + ".arff"
+
+    data, meta = arff.loadarff(arff_path)
 
     normalizer = Normalizer(copy=False)
     class_name = "class"
@@ -79,7 +80,7 @@ def plot_data(data, labels, title):
     plt.ylabel("Second dimension of the data set")
     plt.title(title)
 
-    #plt.show()
+    # plt.show()
 
 
 def print_eigenvalues(eigenvalues, eigenvectors):
@@ -127,13 +128,13 @@ def pca(data, dimensions):
 def plot_dataset_2d(dataset_name):
     print('')
     print(40 * '#')
-    print('Analyting '+dataset_name+' dataset')
+    print('Analysing ' + dataset_name + ' dataset')
     print(40 * '#')
     print('')
     original_data, labels, labels_strings = load_arff_data(dataset_name)
 
     # plot 2 first features of original data
-    plot_data(original_data, labels, dataset_name+' (original data)')
+    plot_data(original_data, labels, dataset_name + ' (original data)')
     pylab.savefig('images/' + dataset_name + '_orig.png')
 
     # our PCA
@@ -143,12 +144,12 @@ def plot_dataset_2d(dataset_name):
 
     # sklearn PCA
     sklearn_data = PCA(n_components=2).fit_transform(original_data)
-    plot_data(sklearn_data, labels, dataset_name+' (sklearn PCA reduced)')
+    plot_data(sklearn_data, labels, dataset_name + ' (sklearn PCA reduced)')
     pylab.savefig('images/' + dataset_name + '_sklearn_pca.png')
 
     # reconstruct data
     reconstructed_data = np.add(np.dot(row_feature_vector.transpose(), transformed_data).transpose(), means)
-    plot_data(reconstructed_data, labels, dataset_name+' (reconstructed data)')
+    plot_data(reconstructed_data, labels, dataset_name + ' (reconstructed data)')
     pylab.savefig('images/' + dataset_name + '_reconstructed.png')
 
 
