@@ -87,25 +87,37 @@ def pca(data, dimensions):
     data, data_column_means = np.broadcast_arrays(data, means)
     adjusted_data = np.subtract(data, data_column_means)
     cov_mat = np.cov(adjusted_data.transpose())
-    print('Covariance Matrix:\n', cov_mat)
+    # print('Covariance Matrix:\n', cov_mat)
 
     eigenvlaues, eigenvectors = np.linalg.eig(cov_mat)
 
-    for idx, value in enumerate(eigenvlaues):
-        print('Eigenvector {}: \n{}'.format(idx + 1, eigenvectors[idx]))
+    # for idx, value in enumerate(eigenvlaues):
+    # print('Eigenvector {}: \n{}'.format(idx + 1, eigenvectors[idx]))
 
-        print('Eigenvalue {} from covariance matrix: {}'.format(idx + 1, value))
-        print(40 * '-')
+    # print('Eigenvalue {} from covariance matrix: {}'.format(idx + 1, value))
+    # print(40 * '-')
 
     eigenvlaues = sorted(eigenvlaues, reverse=True)
     eig_pairs = [(eigenvlaues[i], eigenvectors[i]) for i in range(0, len(eigenvlaues))]
 
-    print("Eigenvalues in decreasing order: \n")
-    for i in eig_pairs:
-        print(i[0])
+    # print("Eigenvalues in decreasing order: \n")
+    # for i in eig_pairs:
+    #    print(i[0])
 
     components = eigenvectors[0:dimensions]
     return components, adjusted_data, means
+
+
+def get_transformed(data, dataset_name, number_of_dimensions=2):
+    original_data, labels, labels_strings = load_arff_data(dataset_name)
+    components, adjusted_data, means = pca(original_data, number_of_dimensions)
+
+    transformed_data = np.dot(adjusted_data, components.transpose())
+
+    adjusted_row_data = np.dot(components.transpose(), transformed_data.transpose())
+    adjusted_row_data = adjusted_data.transpose()
+    reconstructed_data = np.add(adjusted_row_data, means)
+    return transformed_data, reconstructed_data, adjusted_row_data
 
 
 def plot_dataset_2d(dataset_name):
@@ -115,6 +127,13 @@ def plot_dataset_2d(dataset_name):
     transformed_data = np.dot(adjusted_data, components.transpose())
 
     plot_data(transformed_data, labels, dataset_name)
+
+    print components.shape, transformed_data.shape
+    adjusted_row_data = np.dot(components.transpose(), transformed_data.transpose())
+    adjusted_row_data = adjusted_data.transpose()
+
+    #reconstructed_data = np.add(adjusted_row_data, means)
+
 
     # reconstructed_data = np.add(adjusted_data, means)
     #
@@ -133,6 +152,7 @@ def plot_dataset_2d(dataset_name):
     #
     # plt.show()
 
+
 def plot_dataset_3d(dataset_name):
     original_data, labels, labels_strings = load_arff_data(dataset_name)
     components, adjusted_data, means = pca(original_data, 3)
@@ -140,7 +160,6 @@ def plot_dataset_3d(dataset_name):
     transformed_data = np.dot(adjusted_data, components.transpose())
 
     reconstructed_data = np.add(adjusted_data, means)
-
 
     class Arrow3D(FancyArrowPatch):
         def __init__(self, xs, ys, zs, *args, **kwargs):
@@ -168,7 +187,7 @@ def plot_dataset_3d(dataset_name):
     ax.set_ylabel('y_values')
     ax.set_zlabel('z_values')
 
-    plt.title('Eigenvectors '+dataset_name)
+    plt.title('Eigenvectors ' + dataset_name)
 
     plt.show()
 
