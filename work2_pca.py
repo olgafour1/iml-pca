@@ -97,7 +97,7 @@ def pca(data, dimensions):
     data, data_column_means = np.broadcast_arrays(data, means)
     adjusted_data = np.subtract(data, data_column_means)
     cov_mat = np.cov(adjusted_data.transpose())
-    # print('Covariance Matrix:\n', cov_mat)
+    print('Covariance Matrix:\n', cov_mat)
 
     eigenvalues, eigenvectors = np.linalg.eig(cov_mat)
 
@@ -125,6 +125,11 @@ def pca(data, dimensions):
 
 
 def plot_dataset_2d(dataset_name):
+    print('')
+    print(40 * '#')
+    print('Analyting '+dataset_name+' dataset')
+    print(40 * '#')
+    print('')
     original_data, labels, labels_strings = load_arff_data(dataset_name)
 
     # plot 2 first features of original data
@@ -133,7 +138,7 @@ def plot_dataset_2d(dataset_name):
 
     # our PCA
     row_feature_vector, transformed_data, means = pca(original_data, 2)
-    plot_data(transformed_data.transpose(), labels, dataset_name + '(Our PCA implementation)')
+    plot_data(transformed_data.transpose(), labels, dataset_name + ' (our PCA implementation)')
     pylab.savefig('images/' + dataset_name + '_our_pca.png')
 
     # sklearn PCA
