@@ -84,6 +84,14 @@ def plot_data(data, labels, title):
     #plt.show()
 
 
+def print_eigenvalues(eigenvalues, eigenvectors):
+    for idx, value in enumerate(eigenvalues):
+        print('Eigenvector {}: \n{}'.format(idx + 1, eigenvectors[idx]))
+
+        print('Eigenvalue {} from covariance matrix: {}'.format(idx + 1, value))
+        print(40 * '-')
+
+
 def pca(data, dimensions):
     means = np.mean(data, axis=0)
     means = means.reshape(1, means.shape[0])
@@ -93,22 +101,22 @@ def pca(data, dimensions):
     cov_mat = np.cov(adjusted_data.transpose())
     # print('Covariance Matrix:\n', cov_mat)
 
-    eigenvlaues, eigenvectors = np.linalg.eig(cov_mat)
+    eigenvalues, eigenvectors = np.linalg.eig(cov_mat)
 
-    # for idx, value in enumerate(eigenvlaues):
-    # print('Eigenvector {}: \n{}'.format(idx + 1, eigenvectors[idx]))
+    print_eigenvalues(eigenvalues, eigenvectors)
 
-    # print('Eigenvalue {} from covariance matrix: {}'.format(idx + 1, value))
-    # print(40 * '-')
+    sorted_eigenvalues = sorted(enumerate(eigenvalues), key=lambda x: x[1], reverse=True)
 
-    eigenvlaues = sorted(eigenvlaues, reverse=True)
-    eig_pairs = [(eigenvlaues[i], eigenvectors[i]) for i in range(0, len(eigenvlaues))]
+    sorted_eigenvectors = np.array([eigenvectors[idx] for idx, eig in sorted_eigenvalues])
 
-    # print("Eigenvalues in decreasing order: \n")
-    # for i in eig_pairs:
-    #    print(i[0])
+    sorted_eigenvalues = np.array([eig for idx, eig in sorted_eigenvalues])
 
-    components = eigenvectors[0:dimensions]
+    print(40 * '#')
+    print("Eigenvalues in decreasing order: \n")
+
+    print_eigenvalues(sorted_eigenvalues, sorted_eigenvectors)
+
+    components = sorted_eigenvectors[0:dimensions]
     return components, adjusted_data, means
 
 
@@ -215,5 +223,7 @@ if not os.path.isdir('images'):
 
 good_datasets = ['bal', 'vehicle', 'segment', 'waveform']
 
-for dataset in good_datasets:
-    plot_dataset_2d(dataset)
+#for dataset in good_datasets:
+#    plot_dataset_2d(dataset)
+
+plot_dataset_2d('bal')
