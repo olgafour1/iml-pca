@@ -12,7 +12,9 @@ from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
 from random import randint
-
+from sklearn.decomposition import PCA
+from matplotlib import pylab
+import os
 
 def load_arff_data(dataset_name):
     balanceScale = rootDir + "/" + dataset_name + ".arff"
@@ -62,6 +64,8 @@ def take(n, iterable):
 
 
 def plot_data(data, labels, title):
+    plt.clf()
+
     n_items = take(len(np.unique(labels)), matplotlib.colors.cnames.iteritems())
 
     colors = [name for (name, color) in n_items]
@@ -75,9 +79,9 @@ def plot_data(data, labels, title):
     plt.legend(handlelist, np.unique(labels), loc='right', title="Classes")
     plt.xlabel("First dimension of the data set")
     plt.ylabel("Second dimension of the data set")
-    plt.title("{} set".format(title))
+    plt.title(title)
 
-    plt.show()
+    #plt.show()
 
 
 def pca(data, dimensions):
@@ -122,18 +126,31 @@ def get_transformed(data, dataset_name, number_of_dimensions=2):
 
 def plot_dataset_2d(dataset_name):
     original_data, labels, labels_strings = load_arff_data(dataset_name)
+
+    plot_data(original_data, labels, dataset_name+' (original data)')
+
+    pylab.savefig('images/' + dataset_name + '_orig.png')
+
     components, adjusted_data, means = pca(original_data, 2)
 
     transformed_data = np.dot(adjusted_data, components.transpose())
 
-    plot_data(transformed_data, labels, dataset_name)
+    plot_data(transformed_data, labels, dataset_name + '(Our PCA implementation)')
 
-    print components.shape, transformed_data.shape
-    adjusted_row_data = np.dot(components.transpose(), transformed_data.transpose())
-    adjusted_row_data = adjusted_data.transpose()
+    pylab.savefig('images/' + dataset_name + '_our_pca.png')
+
+    #
+    # print components.shape, transformed_data.shape
+    # adjusted_row_data = np.dot(components.transpose(), transformed_data.transpose())
+    # adjusted_row_data = adjusted_data.transpose()
 
     #reconstructed_data = np.add(adjusted_row_data, means)
 
+    sklearn_data = PCA(n_components=2).fit_transform(original_data)
+
+    plot_data(sklearn_data, labels, dataset_name+' (sklearn PCA reduced)')
+
+    pylab.savefig('images/' + dataset_name + '_sklearn_pca.png')
 
     # reconstructed_data = np.add(adjusted_data, means)
     #
@@ -191,6 +208,10 @@ def plot_dataset_3d(dataset_name):
 
     plt.show()
 
+
+# create image folder
+if not os.path.isdir('images'):
+    os.mkdir('images')
 
 good_datasets = ['bal', 'vehicle', 'segment', 'waveform']
 
