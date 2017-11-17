@@ -9,9 +9,7 @@ import matplotlib
 from config import rootDir
 from itertools import islice
 from matplotlib.patches import FancyArrowPatch
-from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import proj3d
-from random import randint
 from sklearn.decomposition import PCA
 from matplotlib import pylab
 import os
@@ -116,75 +114,44 @@ def pca(data, dimensions):
 
     print_eigenvalues(sorted_eigenvalues, sorted_eigenvectors)
 
-    components = sorted_eigenvectors[0:dimensions]
-    return components, adjusted_data, means
+    row_feature_vector = sorted_eigenvectors[0:dimensions]
 
+    print("FeatureVector: \n")
+    print row_feature_vector
 
-def get_transformed(data, dataset_name, number_of_dimensions=2):
-    original_data, labels, labels_strings = load_arff_data(dataset_name)
-    components, adjusted_data, means = pca(original_data, number_of_dimensions)
+    transformed_data = np.dot(row_feature_vector, adjusted_data.transpose())
 
-    transformed_data = np.dot(adjusted_data, components.transpose())
-
-    adjusted_row_data = np.dot(components.transpose(), transformed_data.transpose())
-    adjusted_row_data = adjusted_data.transpose()
-    reconstructed_data = np.add(adjusted_row_data, means)
-    return transformed_data, reconstructed_data, adjusted_row_data
+    return row_feature_vector, transformed_data, means
 
 
 def plot_dataset_2d(dataset_name):
     original_data, labels, labels_strings = load_arff_data(dataset_name)
 
+    # plot 2 first features of original data
     plot_data(original_data, labels, dataset_name+' (original data)')
-
     pylab.savefig('images/' + dataset_name + '_orig.png')
 
-    components, adjusted_data, means = pca(original_data, 2)
-
-    transformed_data = np.dot(adjusted_data, components.transpose())
-
-    plot_data(transformed_data, labels, dataset_name + '(Our PCA implementation)')
-
+    # our PCA
+    row_feature_vector, transformed_data, means = pca(original_data, 2)
+    plot_data(transformed_data.transpose(), labels, dataset_name + '(Our PCA implementation)')
     pylab.savefig('images/' + dataset_name + '_our_pca.png')
 
-    #
-    # print components.shape, transformed_data.shape
-    # adjusted_row_data = np.dot(components.transpose(), transformed_data.transpose())
-    # adjusted_row_data = adjusted_data.transpose()
-
-    #reconstructed_data = np.add(adjusted_row_data, means)
-
+    # sklearn PCA
     sklearn_data = PCA(n_components=2).fit_transform(original_data)
-
     plot_data(sklearn_data, labels, dataset_name+' (sklearn PCA reduced)')
-
     pylab.savefig('images/' + dataset_name + '_sklearn_pca.png')
 
-    # reconstructed_data = np.add(adjusted_data, means)
-    #
-    # fig = plt.figure(figsize=(7, 7))
-    # ax = fig.add_subplot(111)
-    #
-    # ax.plot(transformed_data[:, 0], transformed_data[:, 1], 'o', markersize=8, color='green',
-    #         alpha=0.2)
-    # ax.plot([transformed_data[:, 0].mean()], [transformed_data[:, 1].mean()], 'o',
-    #         markersize=10, color='red', alpha=0.5)
-    #
-    # plt.xlabel("First dimension of the data set")
-    # plt.ylabel("Second dimension of the data set")
-    #
-    # plt.title('Eigenvectors '+dataset_name)
-    #
-    # plt.show()
+    # reconstruct data
+    reconstructed_data = np.add(np.dot(row_feature_vector.transpose(), transformed_data).transpose(), means)
+    plot_data(reconstructed_data, labels, dataset_name+' (reconstructed data)')
+    pylab.savefig('images/' + dataset_name + '_reconstructed.png')
 
 
 def plot_dataset_3d(dataset_name):
     original_data, labels, labels_strings = load_arff_data(dataset_name)
-    components, adjusted_data, means = pca(original_data, 3)
+    components, transformed_data, means = pca(original_data, 3)
 
-    transformed_data = np.dot(adjusted_data, components.transpose())
-
-    reconstructed_data = np.add(adjusted_data, means)
+    transformed_data = transformed_data.transpose()
 
     class Arrow3D(FancyArrowPatch):
         def __init__(self, xs, ys, zs, *args, **kwargs):
@@ -223,7 +190,5 @@ if not os.path.isdir('images'):
 
 good_datasets = ['bal', 'vehicle', 'segment', 'waveform']
 
-#for dataset in good_datasets:
-#    plot_dataset_2d(dataset)
-
-plot_dataset_2d('bal')
+for dataset in good_datasets:
+    plot_dataset_2d(dataset)
