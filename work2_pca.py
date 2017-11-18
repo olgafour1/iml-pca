@@ -90,13 +90,15 @@ def print_eigenvalues(eigenvalues, eigenvectors):
         print('Eigenvalue {} from covariance matrix: {}'.format(idx + 1, value))
         print(40 * '-')
 
-
 def pca(data, dimensions):
     means = np.mean(data, axis=0)
     means = means.reshape(1, means.shape[0])
 
     data, data_column_means = np.broadcast_arrays(data, means)
     adjusted_data = np.subtract(data, data_column_means)
+
+    #means = np.mean(data, axis=0)
+    #adjusted_data = data - means
     cov_mat = np.cov(adjusted_data.transpose())
     print('Covariance Matrix:\n', cov_mat)
 
@@ -106,21 +108,35 @@ def pca(data, dimensions):
 
     sorted_eigenvalues = sorted(enumerate(eigenvalues), key=lambda x: x[1], reverse=True)
 
-    sorted_eigenvectors = np.array([eigenvectors[idx] for idx, eig in sorted_eigenvalues])
+    #indexes = np.argsort(eigenvalues)
+    indexes = [idx for idx, eig in sorted_eigenvalues]
 
-    sorted_eigenvalues = np.array([eig for idx, eig in sorted_eigenvalues])
+    #sorted_eigenvectors = np.array([np.array(eigenvectors[:, idx]).transpose() for idx in indexes])
+    sorted_eigenvectors = eigenvectors[:, indexes]
+
+    sorted_eigenvalues = np.array([eigenvalues[idx] for idx in indexes])
+
+    # Sort the eigen value vector
+    #indexes = np.argsort(eigenvalues)
+
+    # In reverse order
+    #indexes = indexes[::-1]
+
+    #sorted_eigenvectors = eigenvectors[:, indexes]
+    #sorted_eigenvalues = eigenvalues[indexes]
+
 
     print(40 * '#')
     print("Eigenvalues in decreasing order: \n")
 
     print_eigenvalues(sorted_eigenvalues, sorted_eigenvectors)
 
-    row_feature_vector = sorted_eigenvectors[0:dimensions]
+    row_feature_vector = sorted_eigenvectors[:,:dimensions]
 
     print("FeatureVector: \n")
     print row_feature_vector
 
-    transformed_data = np.dot(row_feature_vector, adjusted_data.transpose())
+    transformed_data = np.dot(row_feature_vector.transpose(), adjusted_data.transpose())
 
     return row_feature_vector, transformed_data, means
 
@@ -148,9 +164,9 @@ def plot_dataset_2d(dataset_name):
     pylab.savefig('images/' + dataset_name + '_sklearn_pca.png')
 
     # reconstruct data
-    reconstructed_data = np.add(np.dot(row_feature_vector.transpose(), transformed_data).transpose(), means)
-    plot_data(reconstructed_data, labels, dataset_name + ' (reconstructed data)')
-    pylab.savefig('images/' + dataset_name + '_reconstructed.png')
+    #reconstructed_data = np.add(np.dot(row_feature_vector.transpose(), transformed_data).transpose(), means)
+    #plot_data(reconstructed_data, labels, dataset_name + ' (reconstructed data)')
+    #pylab.savefig('images/' + dataset_name + '_reconstructed.png')
 
 
 def plot_dataset_3d(dataset_name):
