@@ -97,8 +97,6 @@ def pca(data, dimensions):
     data, data_column_means = np.broadcast_arrays(data, means)
     adjusted_data = np.subtract(data, data_column_means)
 
-    #means = np.mean(data, axis=0)
-    #adjusted_data = data - means
     cov_mat = np.cov(adjusted_data.transpose())
     print('Covariance Matrix:\n', cov_mat)
 
