@@ -6,7 +6,6 @@ from sklearn.preprocessing import Imputer
 from sklearn.preprocessing import Normalizer
 from sklearn.preprocessing import LabelEncoder
 import matplotlib
-from config import rootDir
 from itertools import islice
 from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d import proj3d
@@ -16,7 +15,7 @@ import os
 
 
 def load_arff_data(dataset_name):
-    arff_path = rootDir + "/" + dataset_name + ".arff"
+    arff_path = "datasets/" + dataset_name + ".arff"
 
     data, meta = arff.loadarff(arff_path)
 
@@ -200,4 +199,4 @@ if not os.path.isdir('images'):
 good_datasets = ['bal', 'vehicle', 'segment', 'waveform']
 
 for dataset in good_datasets:
-    plot_dataset_3d(dataset)
+    plot_dataset_2d(dataset)
