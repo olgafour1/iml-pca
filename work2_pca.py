@@ -106,37 +106,26 @@ def pca(data, dimensions):
 
     print_eigenvalues(eigenvalues, eigenvectors)
 
+    # sort the eigenvalues
     sorted_eigenvalues = sorted(enumerate(eigenvalues), key=lambda x: x[1], reverse=True)
 
-    #indexes = np.argsort(eigenvalues)
     indexes = [idx for idx, eig in sorted_eigenvalues]
 
-    #sorted_eigenvectors = np.array([np.array(eigenvectors[:, idx]).transpose() for idx in indexes])
     sorted_eigenvectors = eigenvectors[:, indexes]
 
     sorted_eigenvalues = np.array([eigenvalues[idx] for idx in indexes])
-
-    # Sort the eigen value vector
-    #indexes = np.argsort(eigenvalues)
-
-    # In reverse order
-    #indexes = indexes[::-1]
-
-    #sorted_eigenvectors = eigenvectors[:, indexes]
-    #sorted_eigenvalues = eigenvalues[indexes]
-
 
     print(40 * '#')
     print("Eigenvalues in decreasing order: \n")
 
     print_eigenvalues(sorted_eigenvalues, sorted_eigenvectors)
 
-    row_feature_vector = sorted_eigenvectors[:,:dimensions]
+    row_feature_vector = sorted_eigenvectors[:, :dimensions].transpose()
 
     print("FeatureVector: \n")
     print row_feature_vector
 
-    transformed_data = np.dot(row_feature_vector.transpose(), adjusted_data.transpose())
+    transformed_data = np.dot(row_feature_vector, adjusted_data.transpose())
 
     return row_feature_vector, transformed_data, means
 
@@ -164,9 +153,9 @@ def plot_dataset_2d(dataset_name):
     pylab.savefig('images/' + dataset_name + '_sklearn_pca.png')
 
     # reconstruct data
-    #reconstructed_data = np.add(np.dot(row_feature_vector.transpose(), transformed_data).transpose(), means)
-    #plot_data(reconstructed_data, labels, dataset_name + ' (reconstructed data)')
-    #pylab.savefig('images/' + dataset_name + '_reconstructed.png')
+    reconstructed_data = np.add(np.dot(row_feature_vector.transpose(), transformed_data).transpose(), means)
+    plot_data(reconstructed_data, labels, dataset_name + ' (reconstructed data)')
+    pylab.savefig('images/' + dataset_name + '_reconstructed.png')
 
 
 def plot_dataset_3d(dataset_name):
@@ -213,4 +202,4 @@ if not os.path.isdir('images'):
 good_datasets = ['bal', 'vehicle', 'segment', 'waveform']
 
 for dataset in good_datasets:
-    plot_dataset_2d(dataset)
+    plot_dataset_3d(dataset)
